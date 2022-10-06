@@ -24,6 +24,12 @@ enum MediaButton {
 
   /// The "skip to previous" button.
   previous,
+
+  /// The "repeat" button.
+  repeat,
+
+  /// The "shuffle" button.
+  shuffle,
 }
 
 /// The actons associated with playing audio.
@@ -161,6 +167,8 @@ class PlaybackState {
   /// * [MediaAction.skipToNext]
   /// * [MediaAction.fastForward]
   /// * [MediaAction.playPause]
+  /// * [MediaAction.setRepeatMode]
+  /// * [MediaAction.setShuffleMode]
   final List<MediaControl> controls;
 
   /// Up to 3 indices of the [controls] that should appear in Android's compact
@@ -764,6 +772,8 @@ class _MediaItemCopyWith extends MediaItemCopyWith {
 /// * [MediaAction.skipToNext]
 /// * [MediaAction.fastForward]
 /// * [MediaAction.playPause]
+/// * [MediaAction.setRepeatMode]
+/// * [MediaAction.setShuffleMode]
 ///
 /// Predefined controls with default Android icons and labels are defined as
 /// static fields of this class. If you wish to define your own custom Android
@@ -1624,6 +1634,12 @@ abstract class BackgroundAudioTask {
         break;
       case MediaButton.previous:
         await onSkipToPrevious();
+        break;
+      case MediaButton.repeat:
+        await onSetRepeatMode(AudioServiceRepeatMode.none);
+        break;
+      case MediaButton.shuffle:
+        await onSetShuffleMode(AudioServiceShuffleMode.none);
         break;
     }
   }
@@ -2976,6 +2992,12 @@ class BaseAudioHandler extends AudioHandler {
         break;
       case MediaButton.previous:
         await skipToPrevious();
+        break;
+      case MediaButton.repeat:
+        await setRepeatMode(AudioServiceRepeatMode.none);
+        break;
+      case MediaButton.shuffle:
+        await setShuffleMode(AudioServiceShuffleMode.none);
         break;
     }
   }

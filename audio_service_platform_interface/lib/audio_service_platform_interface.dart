@@ -319,6 +319,8 @@ class PlaybackStateMessage {
   /// * [MediaActionMessage.skipToNext]
   /// * [MediaActionMessage.fastForward]
   /// * [MediaActionMessage.playPause]
+  /// * [MediaActionMessage.setRepeatMode]
+  /// * [MediaActionMessage.setShuffleMode]
   final List<MediaControlMessage> controls;
 
   /// Up to 3 indices of the [controls] that should appear in Android's compact
@@ -534,6 +536,8 @@ enum MediaButtonMessage {
   media,
   next,
   previous,
+  repeat,
+  shuffle,
 }
 
 /// The available shuffle modes for the queue.

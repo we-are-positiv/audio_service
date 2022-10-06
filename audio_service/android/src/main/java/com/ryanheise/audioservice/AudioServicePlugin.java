@@ -879,8 +879,9 @@ public class AudioServicePlugin implements FlutterPlugin, ActivityAware {
                 int[] compactActionIndices = null;
                 if (compactActionIndexList != null) {
                     compactActionIndices = new int[Math.min(AudioService.MAX_COMPACT_ACTIONS, compactActionIndexList.size())];
-                    for (int i = 0; i < compactActionIndices.length; i++)
+                    for (int i = 0; i < compactActionIndices.length; i++) {
                         compactActionIndices[i] = (Integer)compactActionIndexList.get(i);
+                    }
                 }
                 AudioService.instance.setState(
                         actions,

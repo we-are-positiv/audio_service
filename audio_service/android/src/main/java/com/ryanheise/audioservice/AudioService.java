@@ -45,6 +45,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import android.util.Log;
 import io.flutter.embedding.engine.FlutterEngine;
 
 public class AudioService extends MediaBrowserServiceCompat {
@@ -68,6 +69,8 @@ public class AudioService extends MediaBrowserServiceCompat {
     // considers these keycodes relevant to media playback and will pass them on to us.
     public static final int KEYCODE_BYPASS_PLAY = KeyEvent.KEYCODE_MUTE;
     public static final int KEYCODE_BYPASS_PAUSE = KeyEvent.KEYCODE_MEDIA_RECORD;
+    public static final int KEYCODE_BYPASS_SHUFFLE = KeyEvent.KEYCODE_HEADSETHOOK;
+    public static final int KEYCODE_BYPASS_REPEAT = KeyEvent.KEYCODE_MEDIA_PAUSE;
     public static final int MAX_COMPACT_ACTIONS = 3;
     private static final long AUTO_ENABLED_ACTIONS = PlaybackStateCompat.ACTION_STOP
             | PlaybackStateCompat.ACTION_PAUSE
@@ -111,6 +114,10 @@ public class AudioService extends MediaBrowserServiceCompat {
             return KEYCODE_BYPASS_PLAY;
         } else if (action == PlaybackStateCompat.ACTION_PAUSE) {
             return KEYCODE_BYPASS_PAUSE;
+        } else if (action == PlaybackStateCompat.ACTION_SET_REPEAT_MODE) {
+            return KEYCODE_BYPASS_REPEAT;
+        } else if (action == PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE) {
+            return KEYCODE_BYPASS_SHUFFLE;
         } else {
             return PlaybackStateCompat.toKeyCode(action);
         }
@@ -309,7 +316,9 @@ public class AudioService extends MediaBrowserServiceCompat {
 
         configure(new AudioServiceConfig(getApplicationContext()));
 
-        mediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS);
+        mediaSession.setFlags(
+            MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS
+        );
         PlaybackStateCompat.Builder stateBuilder = new PlaybackStateCompat.Builder()
                 .setActions(AUTO_ENABLED_ACTIONS);
         mediaSession.setPlaybackState(stateBuilder.build());
@@ -914,13 +923,17 @@ public class AudioService extends MediaBrowserServiceCompat {
                 // around this, we make PLAY and PAUSE actions use different keycodes:
                 // KEYCODE_BYPASS_PLAY/PAUSE. Now if we get KEYCODE_MEDIA_PLAY/PUASE
                 // we know it is actually a media button press.
+                case KEYCODE_BYPASS_REPEAT:
+                    onSetRepeatMode(0);
+                    break;
+                case KEYCODE_BYPASS_SHUFFLE:
+                    onSetShuffleMode(0);
+                    break;
                 case KeyEvent.KEYCODE_MEDIA_NEXT:
                 case KeyEvent.KEYCODE_MEDIA_PREVIOUS:
                 case KeyEvent.KEYCODE_MEDIA_PLAY:
-                case KeyEvent.KEYCODE_MEDIA_PAUSE:
                     // These are the "genuine" media button click events
                 case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
-                case KeyEvent.KEYCODE_HEADSETHOOK:
                     listener.onClick(eventToButton(event));
                     break;
                 }
@@ -931,12 +944,15 @@ public class AudioService extends MediaBrowserServiceCompat {
         private MediaButton eventToButton(KeyEvent event) {
             switch (event.getKeyCode()) {
             case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
-            case KeyEvent.KEYCODE_HEADSETHOOK:
                 return MediaButton.media;
             case KeyEvent.KEYCODE_MEDIA_NEXT:
                 return MediaButton.next;
             case KeyEvent.KEYCODE_MEDIA_PREVIOUS:
                 return MediaButton.previous;
+            case KEYCODE_BYPASS_REPEAT:
+                return MediaButton.repeat;
+            case KEYCODE_BYPASS_SHUFFLE:
+                return MediaButton.shuffle;
             default:
                 return MediaButton.media;
             }
