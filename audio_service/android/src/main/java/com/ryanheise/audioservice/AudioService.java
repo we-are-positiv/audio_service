@@ -242,6 +242,7 @@ public class AudioService extends MediaBrowserServiceCompat {
                     }
                 }
             }
+            bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getWidth());
             artBitmapCache.put(artUriString, bitmap);
             return bitmap;
         } catch (Exception e) {
